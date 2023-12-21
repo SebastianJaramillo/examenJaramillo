@@ -25,17 +25,11 @@ public class ColegioService {
                 throw new RuntimeException("Colegio: " + colegio.getNombre() + " ya existe.");
             }
         } catch (Exception e) {
-            throw new CreacionExeption("No se pudo crear colegio: " + colegio + ", error: " + e);
+            throw new CreacionExcepcion("No se pudo crear colegio: " + colegio + ", error: " + e);
         }
     }
 
     public List<Colegio> findByNombreLike(String nombre) {
         return this.colegioRepository.findByNombreLike(nombre);
-    }
-
-    public class CreacionExeption extends RuntimeException {
-        public CreacionExeption(String message) {
-            super(message);
-        }
     }
 }

@@ -1,6 +1,7 @@
 package ec.edu.espe.examen.Jaramillo.service;
 
-import java.util.List;
+import java.util.Calendar;
+import java.util.Optional;
 
 import ec.edu.espe.examen.Jaramillo.dao.AlumnoRepository;
 import ec.edu.espe.examen.Jaramillo.dao.ColegioRepository;
@@ -10,33 +11,39 @@ import jakarta.transaction.Transactional;
 
 public class AlumnoService {
     private final AlumnoRepository alumnoRepository;
+    private final ColegioRepository colegioRepository;
 
-    public AlumnoService(AlumnoRepository alumnoRepository) {
+    public AlumnoService(AlumnoRepository alumnoRepository, ColegioRepository colegioRepository) {
         this.alumnoRepository = alumnoRepository;
+        this.colegioRepository = colegioRepository;
     }
 
     @Transactional
     public Alumno crearAlumno(Alumno alumno) {
         try {
-            Colegio optionalColegio = colegioRepository.findByNombre(colegio.getNombre());
+            Alumno optionalAlumno = alumnoRepository.findByCedula(alumno.getCedula());
+            Optional<Colegio> optionalColegio = colegioRepository.findById(alumno.getColegio().getCodigo());
 
-            if (optionalColegio == null) {
-                return colegioRepository.save(colegio);
+            if (optionalColegio.isPresent()) {
+                Calendar fechaActual = Calendar.getInstance();
+
+                Calendar fechaNacimiento = Calendar.getInstance();
+                fechaNacimiento.setTime(alumno.getFechaNacimiento());
+
+                if (fechaNacimiento.before(fechaActual)) {
+                    if (optionalAlumno == null) {
+                        return this.alumnoRepository.save(alumno);
+                    } else {
+                        throw new RuntimeException("Alumno con cedula: " + alumno.getCedula() + " ya existe");
+                    }
+                } else {
+                    throw new RuntimeException("La fecha de Nacimiento no es menor a la fecha Actual");
+                }
             } else {
-                throw new RuntimeException("Colegio: " + colegio.getNombre() + " ya existe.");
+                throw new RuntimeException("El colegio enviado no está registrado");
             }
         } catch (Exception e) {
-            throw new CreacionExeption("No se pudo crear colegio: " + colegio + ", error: " + e);
-        }
-    }
-
-    public List<Colegio> findByNombreLike(String nombre) {
-        return this.colegioRepository.findByNombreLike(nombre);
-    }
-
-    public class CreacionExeption extends RuntimeException {
-        public CreacionExeption(String message) {
-            super(message);
+            throw new CreacionExcepcion("Error en creacion de Cliente tipo persona: " + alumno + " el error es: " + e);
         }
     }
 }

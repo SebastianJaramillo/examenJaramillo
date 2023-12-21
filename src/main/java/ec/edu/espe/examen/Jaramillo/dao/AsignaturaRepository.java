@@ -1,5 +1,9 @@
 package ec.edu.espe.examen.Jaramillo.dao;
 
-public interface AsignaturaRepository {
+import org.springframework.data.repository.CrudRepository;
+
+import ec.edu.espe.examen.Jaramillo.domain.Asignatura;
+
+public interface AsignaturaRepository extends CrudRepository<Asignatura, String> {
 
 }
